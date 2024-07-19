@@ -7,4 +7,7 @@ interface ApiService {
 
     @GET("now_playing?language=en-US&page=1")
     fun getNowPlayingMovies(): Call<MovieResponse>
+
+    @GET("top_rated?language=en-US&page=1")
+    fun getTopRatedMovies(): Call<MovieResponse>
 }
