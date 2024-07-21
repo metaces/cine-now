@@ -49,10 +49,18 @@ class MainActivity : ComponentActivity() {
                 var topRatedMovies by remember {
                     mutableStateOf<List<MovieDto>>(emptyList())
                 }
+                var popularMovies by remember {
+                    mutableStateOf<List<MovieDto>>(emptyList())
+                }
+                var upComingMovies by remember {
+                    mutableStateOf<List<MovieDto>>(emptyList())
+                }
 
                 val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
                 val callNowPlayingMovies = apiService.getNowPlayingMovies()
                 val callTopRatedMovies = apiService.getTopRatedMovies()
+                val callPopularMovies = apiService.getPopularMovies()
+                val callUpComingMovies = apiService.getUpComingMovies()
 
                 callNowPlayingMovies.enqueue(object : Callback<MovieResponse> {
                     override fun onResponse(
@@ -96,6 +104,47 @@ class MainActivity : ComponentActivity() {
                     }
 
                 })
+
+                callPopularMovies.enqueue(object : Callback<MovieResponse>{
+                    override fun onResponse(
+                        call: Call<MovieResponse>,
+                        response: Response<MovieResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            val movies = response.body()?.results ?: emptyList()
+                            if (movies.isNotEmpty()) {
+                                popularMovies = movies
+                            }
+                        } else {
+                            Log.d("MainActivity callPopularMovies", "Error onResponse: ${response.errorBody()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                        Log.d("MainActivity callPopularMovies", "Error onFailure: ${t.message}")
+                    }
+
+                })
+                callUpComingMovies.enqueue(object : Callback<MovieResponse>{
+                    override fun onResponse(
+                        call: Call<MovieResponse>,
+                        response: Response<MovieResponse>
+                    ) {
+                        if (response.isSuccessful) {
+                            val movies = response.body()?.results ?: emptyList()
+                            if (movies.isNotEmpty()) {
+                                upComingMovies = movies
+                            }
+                        } else {
+                            Log.d("MainActivity callUpComingMovies", "Error onResponse: ${response.errorBody()}")
+                        }
+                    }
+
+                    override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
+                        Log.d("MainActivity callUpComingMovies", "Error onFailure: ${t.message}")
+                    }
+
+                })
                 // A surface container using the 'background' color from the theme
                 Surface(
                     modifier = Modifier.fillMaxSize(),
@@ -128,10 +177,74 @@ class MainActivity : ComponentActivity() {
                                 Log.d("MainActivity", "Movie clicked: ${it.title}")
                             }
                         )
+
+                        MovieSessions(
+                            label = "Popular",
+                            movieList = popularMovies,
+                            onClick = {
+                                Log.d("MainActivity", "Movie clicked: ${it.title}")
+                            }
+                        )
+
+                        MovieSessions(
+                            label = "UpComing",
+                            movieList = upComingMovies,
+                            onClick = {
+                                Log.d("MainActivity", "Movie clicked: ${it.title}")
+                            }
+                        )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+fun MoviesUpComing(
+    label: String,
+    movieList: List<MovieDto>,
+    onClick: (MovieDto) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            text = label
+        )
+        Spacer(
+            modifier = Modifier
+                .size(8.dp)
+        )
+        MovieList(movies = movieList, onClick = onClick)
+    }
+}
+
+@Composable
+fun MoviesPopular(
+    label: String,
+    movieList: List<MovieDto>,
+    onClick: (MovieDto) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+    ) {
+        Text(
+            fontSize = 24.sp,
+            fontWeight = FontWeight.SemiBold,
+            text = label
+        )
+        Spacer(
+            modifier = Modifier
+                .size(8.dp)
+        )
+        MovieList(movies = movieList, onClick = onClick)
     }
 }
 
