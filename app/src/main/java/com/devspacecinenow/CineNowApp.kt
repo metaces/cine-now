@@ -1,9 +1,11 @@
 package com.devspacecinenow
 
 import androidx.compose.runtime.Composable
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 
 @Composable
 fun CineNowApp() {
@@ -12,8 +14,14 @@ fun CineNowApp() {
         composable(route = "movieList") {
             MovieListScreen(navController)
         }
-        composable(route = "movieDetail") {
-            MovieDetailSceen()
+        composable(
+            route = "movieDetail" + "/{itemId}",
+            arguments = listOf(navArgument("itemId"){
+                type = NavType.StringType
+            })
+        ) { backStackEntry ->
+            val itemId = requireNotNull(backStackEntry.arguments?.getString("itemId"))
+            MovieDetailSceen(itemId, navController)
         }
     }
 }
