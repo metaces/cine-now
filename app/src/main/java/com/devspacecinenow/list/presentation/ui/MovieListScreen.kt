@@ -1,6 +1,5 @@
-package com.devspacecinenow
+package com.devspacecinenow.list.presentation.ui
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -17,10 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
@@ -29,116 +26,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import com.devspacecinenow.common.model.MovieDto
+import com.devspacecinenow.list.presentation.MovieListViewModel
 
 @Composable
-fun MovieListScreen(navController: NavHostController) {
+fun MovieListScreen(
+    navController: NavHostController,
+    viewModel: MovieListViewModel
+) {
 
-    var nowPlayingMovies by remember {
-        mutableStateOf<List<MovieDto>>(emptyList())
-    }
-    var topRatedMovies by remember {
-        mutableStateOf<List<MovieDto>>(emptyList())
-    }
-    var popularMovies by remember {
-        mutableStateOf<List<MovieDto>>(emptyList())
-    }
-    var upComingMovies by remember {
-        mutableStateOf<List<MovieDto>>(emptyList())
-    }
+    val nowPlayingMovies by viewModel.uiNowPlaying.collectAsState()
 
-    val apiService = RetrofitClient.retrofitInstance.create(ApiService::class.java)
-    val callNowPlayingMovies = apiService.getNowPlayingMovies()
-    val callTopRatedMovies = apiService.getTopRatedMovies()
-    val callPopularMovies = apiService.getPopularMovies()
-    val callUpComingMovies = apiService.getUpComingMovies()
+    val topRatedMovies by viewModel.uiTopRatedMovies.collectAsState()
 
-    callNowPlayingMovies.enqueue(object : Callback<MovieResponse> {
-        override fun onResponse(
-            call: Call<MovieResponse>,
-            response: Response<MovieResponse>
-        ) {
-            if (response.isSuccessful) {
-                val movies = response.body()?.results ?: emptyList()
-                if (movies.isNotEmpty()) {
-                    nowPlayingMovies = movies
-                }
-            } else {
-                Log.d("MainActivity callNowPlayingMovies", "Error onResponse: ${response.errorBody()}")
-            }
+    val popularMovies by viewModel.uiPopularMovies.collectAsState()
 
-        }
-
-        override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-            Log.d("MainActivity callNowPlayingMovies", "Error onFailure: ${t.message}")
-        }
-
-    })
-
-    callTopRatedMovies.enqueue(object : Callback<MovieResponse> {
-        override fun onResponse(
-            call: Call<MovieResponse>,
-            response: Response<MovieResponse>
-        ) {
-            if (response.isSuccessful) {
-                val movies = response.body()?.results ?: emptyList()
-                if (movies.isNotEmpty()) {
-                    topRatedMovies = movies
-                }
-            } else {
-                Log.d("MainActivity callUpcomingMovies", "Error onResponse: ${response.errorBody()}")
-            }
-        }
-
-        override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-            Log.d("MainActivity callUpcomingMovies", "Error onFailure: ${t.message}")
-        }
-
-    })
-
-    callPopularMovies.enqueue(object : Callback<MovieResponse> {
-        override fun onResponse(
-            call: Call<MovieResponse>,
-            response: Response<MovieResponse>
-        ) {
-            if (response.isSuccessful) {
-                val movies = response.body()?.results ?: emptyList()
-                if (movies.isNotEmpty()) {
-                    popularMovies = movies
-                }
-            } else {
-                Log.d("MainActivity callPopularMovies", "Error onResponse: ${response.errorBody()}")
-            }
-        }
-
-        override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-            Log.d("MainActivity callPopularMovies", "Error onFailure: ${t.message}")
-        }
-
-    })
-
-    callUpComingMovies.enqueue(object : Callback<MovieResponse> {
-        override fun onResponse(
-            call: Call<MovieResponse>,
-            response: Response<MovieResponse>
-        ) {
-            if (response.isSuccessful) {
-                val movies = response.body()?.results ?: emptyList()
-                if (movies.isNotEmpty()) {
-                    upComingMovies = movies
-                }
-            } else {
-                Log.d("MainActivity callUpComingMovies", "Error onResponse: ${response.errorBody()}")
-            }
-        }
-
-        override fun onFailure(call: Call<MovieResponse>, t: Throwable) {
-            Log.d("MainActivity callUpComingMovies", "Error onFailure: ${t.message}")
-        }
-
-    })
+    val upComingMovies by viewModel.uiUpComingMovies.collectAsState()
 
     MovieListContent(
         topRatedMovies = topRatedMovies,
