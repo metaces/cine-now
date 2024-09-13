@@ -8,45 +8,37 @@ import androidx.lifecycle.viewmodel.CreationExtras
 import com.devspacecinenow.common.data.RetrofitClient
 import com.devspacecinenow.common.model.MovieDto
 import com.devspacecinenow.detail.data.DetailService
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import kotlinx.coroutines.withContext
 
 class MovieDetailViewModel(
     private val detailService: DetailService
 ): ViewModel() {
 
     private val _uiMovieDetail = MutableStateFlow<MovieDto?>(null)
-    val uiMovieDetail: StateFlow<MovieDto?> = _uiMovieDetail
+    val uiMovieDetail: StateFlow<MovieDto?> = _uiMovieDetail.asStateFlow()
 
     fun fetchDetailMovie(movieId: String) {
         if (_uiMovieDetail.value == null) {
-            detailService.getMovieById(movieId).enqueue(
-                object: Callback<MovieDto> {
-                    override fun onResponse(call: Call<MovieDto>, response: Response<MovieDto>) {
-                        if (response.isSuccessful) {
-                            _uiMovieDetail.value = response.body()
-                        } else {
-                            Log.d("MovieDetailViewModel", "Error: ${response.errorBody()}")
-                        }
-                    }
-
-                    override fun onFailure(call: Call<MovieDto>, t: Throwable) {
-                        Log.d("MovieDetailViewModel", "Error: ${t.message}")
-                    }
-
+            viewModelScope.launch(Dispatchers.IO) {
+                val response = detailService.getMovieById(movieId)
+                if (response.isSuccessful) {
+                    _uiMovieDetail.value = response.body()
+                } else {
+                    Log.d("MovieDetailViewModel", "Error: ${response.errorBody()}")
                 }
-            )
+            }
         }
     }
 
     fun cleanMovieDetail() {
         viewModelScope.launch {
-            delay(1000)
+            delay(1000L)
             _uiMovieDetail.value = null
         }
     }
