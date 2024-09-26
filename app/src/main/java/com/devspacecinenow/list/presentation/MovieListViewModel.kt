@@ -1,14 +1,11 @@
 package com.devspacecinenow.list.presentation
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.CreationExtras
-import com.devspacecinenow.common.data.RetrofitClient
-import com.devspacecinenow.common.model.MovieDto
-import com.devspacecinenow.common.model.MovieResponse
-import com.devspacecinenow.list.data.ListService
+import com.devspacecinenow.CineNowApplication
 import com.devspacecinenow.list.data.MovieListRepository
 import com.devspacecinenow.list.presentation.ui.MovieListUiState
 import com.devspacecinenow.list.presentation.ui.MovieUiData
@@ -16,9 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import java.net.UnknownHostException
 
 class MovieListViewModel(
@@ -48,14 +42,14 @@ class MovieListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getNowPlaying()
             if (result.isSuccess) {
-                val movies = result.getOrNull()?.results
+                val movies = result.getOrNull()
                 if (movies != null) {
                     val movieUiDataList = movies.map {
                         MovieUiData(
                             id = it.id,
                             title = it.title,
                             overview = it.overview,
-                            image = it.posterFullPath
+                            image = it.image
                         )
                     }
                     _uiNowPlaying.value = MovieListUiState(movies = movieUiDataList)
@@ -77,14 +71,14 @@ class MovieListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getTopRated()
             if (result.isSuccess) {
-                val movies = result.getOrNull()?.results
+                val movies = result.getOrNull()
                 if (movies != null) {
                     val movieUiDataList = movies.map {
                         MovieUiData(
                             id = it.id,
                             title = it.title,
                             overview = it.overview,
-                            image = it.posterFullPath
+                            image = it.image
                         )
                     }
                     _uiTopRatedMovies.value = MovieListUiState(movies = movieUiDataList)
@@ -106,14 +100,14 @@ class MovieListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getPopular()
             if (result.isSuccess) {
-                val movies = result.getOrNull()?.results
+                val movies = result.getOrNull()
                 if (movies != null) {
                     val movieUiDataList = movies.map {
                         MovieUiData(
                             id = it.id,
                             title = it.title,
                             overview = it.overview,
-                            image = it.posterFullPath
+                            image = it.image
                         )
                     }
                     _uiPopularMovies.value = MovieListUiState(movies = movieUiDataList)
@@ -136,14 +130,14 @@ class MovieListViewModel(
         viewModelScope.launch(Dispatchers.IO) {
             val result = repository.getUpComing()
             if (result.isSuccess) {
-                val movies = result.getOrNull()?.results
+                val movies = result.getOrNull()
                 if (movies != null) {
                     val movieUiDataList = movies.map {
                         MovieUiData(
                             id = it.id,
                             title = it.title,
                             overview = it.overview,
-                            image = it.posterFullPath
+                            image = it.image
                         )
                     }
                     _uiUpComingMovies.value = MovieListUiState(movies = movieUiDataList)
@@ -167,9 +161,9 @@ class MovieListViewModel(
                 modelClass: Class<T>,
                 extras: CreationExtras
             ): T {
-                val listService = RetrofitClient.retrofitInstance.create(ListService::class.java)
+                val application = checkNotNull(extras[APPLICATION_KEY])
                 return MovieListViewModel(
-                    repository = MovieListRepository(listService)
+                    repository = (application as CineNowApplication).repository
                 ) as T
             }
         }
