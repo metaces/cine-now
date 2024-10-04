@@ -2,13 +2,11 @@ package com.devspacecinenow.list.data
 
 import android.accounts.NetworkErrorException
 import com.devspacecinenow.common.data.model.Movie
-import com.devspacecinenow.common.data.remote.model.MovieResponse
-import com.devspacecinenow.list.data.local.MovieListLocalDataSource
-import com.devspacecinenow.list.data.remote.ListService
+import com.devspacecinenow.list.data.local.LocalDataSource
 import com.devspacecinenow.list.data.remote.MovieListRemoteDataSource
 
 class MovieListRepository(
-    private val localDataSource: MovieListLocalDataSource,
+    private val localDataSource: LocalDataSource,
     private val remoteDataSource: MovieListRemoteDataSource
 ) {
     suspend fun getNowPlaying(): Result<List<Movie>?> {

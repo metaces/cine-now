@@ -7,21 +7,21 @@ import com.devspacecinenow.common.data.model.Movie
 
 class MovieListLocalDataSource(
     private val dao: MovieDao
-) {
+): LocalDataSource {
 
-    suspend fun getNowPlayingMovies(): List<Movie> {
+    override suspend fun getNowPlayingMovies(): List<Movie> {
         return getMoviesByCategory(MovieCategory.NowPlaying)
     }
 
-    suspend fun getTopRatedMovies(): List<Movie> {
+    override suspend fun getTopRatedMovies(): List<Movie> {
         return getMoviesByCategory(MovieCategory.TopRated)
     }
 
-    suspend fun getPopularMovies(): List<Movie> {
+    override suspend fun getPopularMovies(): List<Movie> {
         return getMoviesByCategory(MovieCategory.Popular)
     }
 
-    suspend fun getUpComingMovies(): List<Movie> {
+    override suspend fun getUpComingMovies(): List<Movie> {
         return getMoviesByCategory(MovieCategory.UpComing)
     }
 
@@ -38,7 +38,7 @@ class MovieListLocalDataSource(
         }
     }
 
-    suspend fun updateLocalItems(movies: List<Movie>) {
+    override suspend fun updateLocalItems(movies: List<Movie>) {
         val entities = movies.map {
             MovieEntity(
                 id = it.id,
